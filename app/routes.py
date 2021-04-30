@@ -27,3 +27,16 @@ def handle_planets():
 
         return make_response(f"Planet {new_planet.name} successfully created", 201)
 
+@planets_bp.route("/<planet_id>", methods=["GET"]) #, "DELETE", "PUT"
+def handle_planet(planet_id):
+    if request.method == "GET":
+        planet = Planet.query.get(planet_id)
+        if planet:
+            planet_response = {
+                "id": planet.id, 
+                "name": planet.name, 
+                "description": planet.description
+            }
+            return planet_response
+        else:
+            return make_response(f"Planet outside of the bounds of the universe :(", 404)
