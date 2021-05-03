@@ -6,8 +6,7 @@ from flask import request, Blueprint, make_response, jsonify
 planets_bp = Blueprint(
     "planets",
     __name__,
-    url_prefix="/planets",
-    strict_slashes=False)
+    url_prefix="/planets")
 
 
 @planets_bp.route("", methods=["GET"])
@@ -39,21 +38,45 @@ def add_new_planet():
 
 @planets_bp.route("/<int:planet_id>", methods=["GET"], strict_slashes=False)
 def get_planet_by_id(planet_id):
-    if request.method == "GET":
-        planet = Planet.query.get(planet_id)
-        if planet:
-            planet_response = {
-                "id": planet.id,
-                "name": planet.name,
-                "description": planet.description
-            }
-            return jsonify(planet_response)
-        else:
-            return make_response(
-                f"Planet outside of the bounds of the universe :(", 404)
+    planet = Planet.query.get(planet_id)
+    if planet:
+        planet_response = {
+            "id": planet.id,
+            "name": planet.name,
+            "description": planet.description
+        }
+        return jsonify(planet_response)
+    else:
+        return make_response(
+            f"Planet outside of the bounds of the universe :(", 404)
 
 
 @planets_bp.route("/<string:planet_id>", methods=["GET"], strict_slashes=False)
 def get_not_int_planet_id(planet_id):
     return make_response(
         f"Bad request, please enter an integer after 'planets/'", 400)
+
+@planets_bp.route("/<int:planet_id>", methods=["PUT"], strict_slashes=False)
+def update_planet_by_id(planet_id):
+    planet = Planet.query.get(planet_id)
+
+    request_body = request.get_json()
+    
+    planet.name = request_body["name"]
+    planet.description = request_body["description"]
+
+    db.session.commit()
+
+    return make_response(f"Planet {planet.name} successfully updated", 200)
+
+@planets_bp.route("/<int:planet_id>", methods=["DELETE"], strict_slashes=False)
+def delete_planet_by_id(planet_id):
+    planet = Planet.query.get(planet_id)
+    if planet:
+        db.session.delete(planet)
+        db.session.commit()
+        return make_response(f"Planet {planet.name} was successfully deleted.", 200)
+    else:
+        return make_response(
+            f"Planet outside of the bounds of the universe :(", 404)
+
