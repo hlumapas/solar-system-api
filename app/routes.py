@@ -33,8 +33,6 @@ def add_new_planet():
 
     return make_response(f"Planet {new_planet.name} successfully created", 201)
 
-# to implement delete, put
-
 
 @planets_bp.route("/<int:planet_id>", methods=["GET"], strict_slashes=False)
 def get_planet_by_id(planet_id):
@@ -51,23 +49,22 @@ def get_planet_by_id(planet_id):
             f"Planet outside of the bounds of the universe :(", 404)
 
 
-@planets_bp.route("/<string:planet_id>", methods=["GET"], strict_slashes=False)
-def get_not_int_planet_id(planet_id):
-    return make_response(
-        f"Bad request, please enter an integer after 'planets/'", 400)
-
 @planets_bp.route("/<int:planet_id>", methods=["PUT"], strict_slashes=False)
 def update_planet_by_id(planet_id):
     planet = Planet.query.get(planet_id)
+    if planet:
+        request_body = request.get_json()
 
-    request_body = request.get_json()
-    
-    planet.name = request_body["name"]
-    planet.description = request_body["description"]
+        planet.name = request_body["name"]
+        planet.description = request_body["description"]
 
-    db.session.commit()
+        db.session.commit()
 
-    return make_response(f"Planet {planet.name} successfully updated", 200)
+        return make_response(f"Planet {planet.name} successfully updated", 200)
+    else:
+        return make_response(
+            f"Planet outside of the bounds of the universe :(", 404)
+
 
 @planets_bp.route("/<int:planet_id>", methods=["DELETE"], strict_slashes=False)
 def delete_planet_by_id(planet_id):
@@ -75,8 +72,15 @@ def delete_planet_by_id(planet_id):
     if planet:
         db.session.delete(planet)
         db.session.commit()
-        return make_response(f"Planet {planet.name} was successfully deleted.", 200)
+        return make_response(
+            f"Planet {planet.name} was successfully deleted.", 200)
     else:
         return make_response(
             f"Planet outside of the bounds of the universe :(", 404)
 
+
+@planets_bp.route("/<string:planet_id>",
+                  methods=["GET", "PUT", "DELETE"], strict_slashes=False)
+def get_not_int_planet_id(planet_id):
+    return make_response(
+        f"Bad request, please enter an integer after 'planets/'", 400)
