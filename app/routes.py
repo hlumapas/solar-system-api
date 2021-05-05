@@ -1,6 +1,6 @@
+from flask import request, Blueprint, make_response, jsonify
 from app import db
 from app.models.planet import Planet
-from flask import request, Blueprint, make_response, jsonify
 
 
 planets_bp = Blueprint(
@@ -44,9 +44,9 @@ def get_planet_by_id(planet_id):
             "description": planet.description
         }
         return jsonify(planet_response)
-    else:
-        return make_response(
-            f"Planet outside of the bounds of the universe :(", 404)
+
+    return make_response(
+        "Planet outside of the bounds of the universe :(", 404)
 
 
 @planets_bp.route("/<int:planet_id>", methods=["PUT"], strict_slashes=False)
@@ -61,9 +61,9 @@ def update_planet_by_id(planet_id):
         db.session.commit()
 
         return make_response(f"Planet {planet.name} successfully updated", 200)
-    else:
-        return make_response(
-            f"Planet outside of the bounds of the universe :(", 404)
+
+    return make_response(
+        "Planet outside of the bounds of the universe :(", 404)
 
 
 @planets_bp.route("/<int:planet_id>", methods=["DELETE"], strict_slashes=False)
@@ -74,13 +74,13 @@ def delete_planet_by_id(planet_id):
         db.session.commit()
         return make_response(
             f"Planet {planet.name} was successfully deleted.", 200)
-    else:
-        return make_response(
-            f"Planet outside of the bounds of the universe :(", 404)
+
+    return make_response(
+        "Planet outside of the bounds of the universe :(", 404)
 
 
 @planets_bp.route("/<string:planet_id>",
                   methods=["GET", "PUT", "DELETE"], strict_slashes=False)
-def get_not_int_planet_id(planet_id):
+def get_not_int_planet_id():
     return make_response(
-        f"Bad request, please enter an integer after 'planets/'", 400)
+        "Bad request, please enter an integer after 'planets/'", 400)
