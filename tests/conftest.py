@@ -1,6 +1,7 @@
 import pytest
 from app import create_app 
 from app import db 
+from app.models.planet import Planet
 
 @pytest.fixture
 def app(): 
